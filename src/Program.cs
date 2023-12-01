@@ -6,7 +6,7 @@ namespace AoC2023
     {
         static void Main(string[] args)
         {
-            new DayOneController().Run();
+            DayOneController.Run();
         }
     }
 }
