@@ -1,5 +1,6 @@
 ﻿using AoC2023.Day1;
 using AoC2023.Day2;
+using AoC2023.Day3;
 
 namespace AoC2023
 {
@@ -8,7 +9,8 @@ namespace AoC2023
         static void Main(string[] args)
         {
             // DayOneController.Run();
-            DayTwoController.Run();
+            //DayTwoController.Run();
+            DayThreeController.Run();
         }
     }
 }
