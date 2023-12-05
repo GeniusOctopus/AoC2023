@@ -41,8 +41,7 @@
 
                 foreach (var map in plan)
                 {
-                    var currentCount = currentSeedRanges.Count - 1;
-                    for (int i = currentCount; i >= 0; i--)
+                    for (int i = currentSeedRanges.Count - 1; i >= 0; i--)
                     {
                         var seedRange = currentSeedRanges[i];
                         if (seedRange.Start < map.SourceEnd && seedRange.CalculatedEnd > map.SoureceStart)
@@ -54,16 +53,15 @@
 
                             if (seedRange.Start < newStart)
                             {
-                                var newRangeEnd = seedRange.Start - ((newStart - 1) - seedRange.Start + 1);
-                                newRanges.Add(new SeedRange(seedRange.Start, newRangeEnd));
+                                newRanges.Add(SeedRange.NewSeedRange(seedRange.Start, newStart - 1));
                             }
 
                             if (seedRange.CalculatedEnd > newEnd)
                             {
-                                newRanges.Add(new SeedRange(newEnd + 1, seedRange.CalculatedEnd - (newEnd + 1) + 1));
+                                newRanges.Add(SeedRange.NewSeedRange(newEnd+1, seedRange.CalculatedEnd));
                             }
 
-                            newRanges.Add(new SeedRange(newStart + map.Offset, (newEnd + map.Offset) - (newStart + map.Offset) + 1));
+                            newRanges.Add(SeedRange.NewSeedRange(newStart + map.Offset, newEnd + map.Offset));
                         }
                     }
                 }
@@ -90,7 +88,7 @@
             public long Length { get; set; } = length;
             public long CalculatedEnd { get => Start + Length - 1; }
 
-            SeedRange NewSeedRange(long start, long end)
+            public static SeedRange NewSeedRange(long start, long end)
             {
                 return new SeedRange(start, end - start + 1);
             }
