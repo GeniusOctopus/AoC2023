@@ -6,14 +6,22 @@
         {
             string[] input = File.ReadAllLines("Day5/input.txt");
 
-            Dictionary<long, long> seeds = input[0][7..].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => new KeyValuePair<long, long>(long.Parse(x), long.Parse(x))).ToDictionary();
-            List<List<(long destination, long source, long length)>> maps = [];
+            List<long> seeds = input[0][7..].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => long.Parse(x)).ToList();
+            List<SeedRange> seedRanges = [];
+            List<List<PlantMap>> plans = [];
 
+            // Create Seed Ranges
+            for (int i = 0; i < seeds.Count - 1; i += 2)
+            {
+                seedRanges.Add(new SeedRange(seeds[i], seeds[i + 1]));
+            }
+
+            // Create Maps
             for (long i = 1; i < input.Length; i++)
             {
                 if (string.IsNullOrEmpty(input[i]))
                 {
-                    maps.Add([]);
+                    plans.Add([]);
                 }
                 else
                 {
@@ -21,31 +29,72 @@
                         continue;
 
                     var numbers = input[i].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => long.Parse(x)).ToArray();
-                    maps.Last().Add((numbers[0], numbers[1], numbers[2]));
+                    plans.Last().Add(new PlantMap(numbers[0], numbers[1], numbers[2]));
                 }
             }
 
-            foreach (var pair in seeds)
+            var currentSeedRanges = new List<SeedRange>();
+            currentSeedRanges.AddRange(seedRanges);
+            foreach (var plan in plans)
             {
-                for (int j = 0; j < maps.Count; j++)
-                {
-                    var found = false;
+                var newRanges = new List<SeedRange>();
 
-                    for (int k = 0; !found && k < maps[j].Count; k++)
+                foreach (var map in plan)
+                {
+                    var currentCount = currentSeedRanges.Count - 1;
+                    for (int i = currentCount; i >= 0; i--)
                     {
-                        if (seeds[pair.Key] >= maps[j][k].source && seeds[pair.Key] <= maps[j][k].source + (maps[j][k].length - 1))
+                        var seedRange = currentSeedRanges[i];
+                        if (seedRange.Start < map.SourceEnd && seedRange.CalculatedEnd > map.SoureceStart)
                         {
-                            var distanceToSource = seeds[pair.Key] - maps[j][k].source;
-                            seeds[pair.Key] = maps[j][k].destination + distanceToSource;
-                            found = true;
+                            currentSeedRanges.RemoveAt(i);
+
+                            var newStart = Math.Max(map.SoureceStart, seedRange.Start);
+                            var newEnd = Math.Min(map.SourceEnd, seedRange.CalculatedEnd);
+
+                            if (seedRange.Start < newStart)
+                            {
+                                var newRangeEnd = seedRange.Start - ((newStart - 1) - seedRange.Start + 1);
+                                newRanges.Add(new SeedRange(seedRange.Start, newRangeEnd));
+                            }
+
+                            if (seedRange.CalculatedEnd > newEnd)
+                            {
+                                newRanges.Add(new SeedRange(newEnd + 1, seedRange.CalculatedEnd - (newEnd + 1) + 1));
+                            }
+
+                            newRanges.Add(new SeedRange(newStart + map.Offset, (newEnd + map.Offset) - (newStart + map.Offset) + 1));
                         }
                     }
-
-                    found = false;
                 }
+
+                currentSeedRanges.AddRange(newRanges);
             }
 
-            Console.WriteLine(seeds.Min(x => x.Value));
+            Console.WriteLine(currentSeedRanges.Min(x => x.Start));
         }
+
+        struct PlantMap(long destStart, long sourceStart, long length)
+        {
+            public long DestStart { get; set; } = destStart;
+            public long SoureceStart { get; set; } = sourceStart;
+            public long Length { get; set; } = length;
+            public long DestEnd { get => DestStart + Length - 1; }
+            public long SourceEnd { get => SoureceStart + Length - 1; }
+            public long Offset { get => DestStart - SoureceStart; }
+        };
+
+        struct SeedRange(long start, long length)
+        {
+            public long Start { get; set; } = start;
+            public long Length { get; set; } = length;
+            public long CalculatedEnd { get => Start + Length - 1; }
+
+            SeedRange NewSeedRange(long start, long end)
+            {
+                return new SeedRange(start, end - start + 1);
+            }
+
+        };
     }
 }
