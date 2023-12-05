@@ -53,12 +53,12 @@
 
                             if (seedRange.Start < newStart)
                             {
-                                newRanges.Add(SeedRange.NewSeedRange(seedRange.Start, newStart - 1));
+                                currentSeedRanges.Add(SeedRange.NewSeedRange(seedRange.Start, newStart - 1));
                             }
 
                             if (seedRange.CalculatedEnd > newEnd)
                             {
-                                newRanges.Add(SeedRange.NewSeedRange(newEnd+1, seedRange.CalculatedEnd));
+                                currentSeedRanges.Add(SeedRange.NewSeedRange(newEnd+1, seedRange.CalculatedEnd));
                             }
 
                             newRanges.Add(SeedRange.NewSeedRange(newStart + map.Offset, newEnd + map.Offset));
