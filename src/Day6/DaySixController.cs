@@ -5,13 +5,23 @@
         public static void Run()
         {
             var input = File.ReadAllLines("Day6/input.txt");
-            var firstLine = input[0].Split(':')[1].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-            var secondLine = input[1].Split(':')[1].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-            IEnumerable<(int time, int distance)> races = firstLine.Zip(secondLine);
+            var firstLine1 = input[0].Split(':')[1].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse);
+            var secondLine1 = input[1].Split(':')[1].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse);
+            IEnumerable<(long time, long distance)> races1 = firstLine1.Zip(secondLine1);
 
+            var firstLine2 = long.Parse(input[0].Split(':')[1].Trim().Replace(" ", string.Empty));
+            var secondLine2 = long.Parse(input[1].Split(':')[1].Trim().Replace(" ", string.Empty));
+            IEnumerable<(long time, long distance)> races2 = [(firstLine2, secondLine2)];
+
+            Calculate(races1);
+            Calculate(races2);
+        }
+
+        public static void Calculate(IEnumerable<(long time, long distance)> races)
+        {
             List<int> possibleStartTimes = [];
 
-            foreach (var race  in races)
+            foreach (var race in races)
             {
                 // f(x) = ax^2 + bx + c
                 double a = 1;
