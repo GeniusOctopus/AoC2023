@@ -4,6 +4,7 @@ using AoC2023.Day3;
 using AoC2023.Day4;
 using AoC2023.Day5;
 using AoC2023.Day6;
+using AoC2023.Day7;
 
 namespace AoC2023
 {
@@ -16,7 +17,8 @@ namespace AoC2023
             //DayThreeController.Run();
             //DayFourController.Run();
             //DayFiveController.Run();
-            DaySixController.Run();
+            //DaySixController.Run();
+            DaySevenController.Run();
         }
     }
 }
