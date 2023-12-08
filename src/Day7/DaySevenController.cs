@@ -10,13 +10,21 @@ namespace AoC2023.Day7
             string[] input = File.ReadAllLines("Day7/input.txt");
             var hands = input.Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Select(x => new CamelCardHand(x.First().Select(y => y), int.Parse(x.Last())));
 
-            var fiveOfAKind = hands.Where(hand => hand.Cards.GroupBy(x => x).Select(x => x.Count()).All(x => x == 5)).OrderDescending().ToList();
-            var fourOfAKind = hands.Where(hand => hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 4)).OrderDescending().ToList();
-            var fullHouse = hands.Where(hand => hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x== 3) && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 2)).OrderDescending().ToList();
-            var threeOfAKind = hands.Where(hand => hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 3 && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 3)).OrderDescending().ToList();
-            var twoPair = hands.Where(hand => hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 3 && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Where(x => x == 2).Count() == 2).OrderDescending().ToList();
-            var onePair = hands.Where(hand => hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 4 && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 2)).OrderDescending().ToList();
-            var highCard = hands.Where(hand => hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 5).OrderDescending().ToList();
+            //var fiveOfAKind = hands.Where(hand => GetHandTypePart1(hand) == HandType.FiveOfAKind).OrderDescending().ToList();
+            //var fourOfAKind = hands.Where(hand => GetHandTypePart1(hand) == HandType.FourOfAKind).OrderDescending().ToList();
+            //var fullHouse = hands.Where(hand => GetHandTypePart1(hand) == HandType.FullHouse).OrderDescending().ToList();
+            //var threeOfAKind = hands.Where(hand => GetHandTypePart1(hand) == HandType.ThreeOfAKind).OrderDescending().ToList();
+            //var twoPair = hands.Where(hand => GetHandTypePart1(hand) == HandType.TwoPair).OrderDescending().ToList();
+            //var onePair = hands.Where(hand => GetHandTypePart1(hand) == HandType.OnePair).OrderDescending().ToList();
+            //var highCard = hands.Where(hand => GetHandTypePart1(hand) == HandType.HighCard).OrderDescending().ToList();
+
+            var fiveOfAKind = hands.Where(hand => GetHandTypePart2(hand) == HandType.FiveOfAKind).OrderDescending().ToList();
+            var fourOfAKind = hands.Where(hand => GetHandTypePart2(hand) == HandType.FourOfAKind).OrderDescending().ToList();
+            var fullHouse = hands.Where(hand => GetHandTypePart2(hand) == HandType.FullHouse).OrderDescending().ToList();
+            var threeOfAKind = hands.Where(hand => GetHandTypePart2(hand) == HandType.ThreeOfAKind).OrderDescending().ToList();
+            var twoPair = hands.Where(hand => GetHandTypePart2(hand) == HandType.TwoPair).OrderDescending().ToList();
+            var onePair = hands.Where(hand => GetHandTypePart2(hand) == HandType.OnePair).OrderDescending().ToList();
+            var highCard = hands.Where(hand => GetHandTypePart2(hand) == HandType.HighCard).OrderDescending().ToList();
 
             var ranked = new List<CamelCardHand>();
             ranked.AddRange(highCard);
@@ -36,15 +44,86 @@ namespace AoC2023.Day7
 
             Console.WriteLine(sum);
         }
+
+        private static HandType GetHandTypePart1(CamelCardHand hand)
+        {
+            if (hand.Cards.GroupBy(x => x).Select(x => x.Count()).All(x => x == 5))
+                return HandType.FiveOfAKind;
+
+            else if (hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 4))
+                return HandType.FourOfAKind;
+
+            else if (hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 3) && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 2))
+                return HandType.FullHouse;
+
+            else if (hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 3 && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 3))
+                return HandType.ThreeOfAKind;
+
+            else if (hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 3 && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Where(x => x == 2).Count() == 2)
+                return HandType.TwoPair;
+
+            else if (hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 4 && hand.Cards.GroupBy(x => x).Select(x => x.Count()).Any(x => x == 2))
+                return HandType.OnePair;
+
+            else if (hand.Cards.GroupBy(x => x).Select(x => x.Count()).Count() == 5)
+                return HandType.HighCard;
+
+            else return HandType.HighCard;
+        }
+
+        private static HandType GetHandTypePart2(CamelCardHand hand)
+        {
+            var jokerCount = hand.Cards.Count(x => x == 'J');
+            var normalType = GetHandTypePart1(hand);
+
+            if (jokerCount == 5 ||
+                jokerCount == 4 ||
+                jokerCount == 3 && normalType == HandType.OnePair ||
+                jokerCount == 2 && normalType == HandType.ThreeOfAKind ||
+                jokerCount == 1 && normalType == HandType.FourOfAKind ||
+                normalType == HandType.FiveOfAKind)
+                return HandType.FiveOfAKind;
+
+            else if (jokerCount == 3 ||
+                jokerCount == 2 && normalType == HandType.TwoPair ||
+                jokerCount == 2 && normalType == HandType.OnePair ||
+                jokerCount == 1 && normalType == HandType.ThreeOfAKind ||
+                normalType == HandType.FourOfAKind)
+                return HandType.FourOfAKind;
+
+            else if (jokerCount == 1 && normalType == HandType.TwoPair ||
+                normalType == HandType.FullHouse)
+                return HandType.FullHouse;
+
+            else if (jokerCount == 2 ||
+                jokerCount == 1 && normalType == HandType.OnePair ||
+                normalType == HandType.ThreeOfAKind)
+                return HandType.ThreeOfAKind;
+
+            else if (normalType == HandType.TwoPair)
+                return HandType.TwoPair;
+
+            else if (jokerCount == 1 ||
+                normalType == HandType.OnePair)
+                return HandType.OnePair;
+
+            else return HandType.HighCard;
+        }
+    }
+
+    enum HandType
+    {
+        FiveOfAKind,
+        FourOfAKind,
+        FullHouse,
+        ThreeOfAKind,
+        TwoPair,
+        OnePair,
+        HighCard
     }
 
     record struct CamelCardHand(IEnumerable<char> Cards, int Bid) : IComparable<CamelCardHand>
     {
-        public int Compare(CamelCardHand x, CamelCardHand y)
-        {
-            return x.Cards.Sum(x => x) > y.Cards.Sum(x => x) ? 1 : 0;
-        }
-
         public int CompareTo(CamelCardHand other)
         {
             int value = 0;
@@ -82,7 +161,7 @@ namespace AoC2023.Day7
                 '8' => 8,
                 '9' => 9,
                 'T' => 10,
-                'J' => 11,
+                'J' => 1,
                 'Q' => 12,
                 'K' => 13,
                 'A' => 14,
