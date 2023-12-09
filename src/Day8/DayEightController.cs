@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace AoC2023.Day8
 {
@@ -13,7 +12,7 @@ namespace AoC2023.Day8
 
             Dictionary<string, (string left, string right)> tree = [];
 
-            for (int i = 2;  i < input.Length; i++)
+            for (int i = 2; i < input.Length; i++)
             {
                 var match = Node().Match(input[i]);
 
@@ -21,35 +20,53 @@ namespace AoC2023.Day8
             }
 
             var found = false;
-            var count = 0;
-            var currentNode = tree.First(x => x.Key == "AAA").Key;
+            var startNodes = tree.Where(x => x.Key.EndsWith("A")).Select(x => x.Key).ToList();
+            var counts = new long[startNodes.Count];
 
-            while (!found)
+            for (int nodeIndex = 0; nodeIndex < startNodes.Count; nodeIndex++)
             {
-                for (int i = 0; !found && i < instructions.Length; i++)
+                while (!found)
                 {
-                    if (instructions[i] == 'L')
+                    for (int i = 0; !found && i < instructions.Length; i++)
                     {
-                        currentNode = tree[currentNode].left;
-                        count++;
-                    }
-                    else
-                    {
-                        currentNode = tree[currentNode].right;
-                        count++;
-                    }
+                        if (instructions[i] == 'L')
+                        {
+                            startNodes[nodeIndex] = tree[startNodes[nodeIndex]].left;
+                        }
+                        else
+                        {
+                            startNodes[nodeIndex] = tree[startNodes[nodeIndex]].right;
+                        }
 
-                    if (currentNode == "ZZZ")
-                    {
-                        found = true;
+                        counts[nodeIndex]++;
+
+                        if (startNodes[nodeIndex].EndsWith("Z"))
+                        {
+                            found = true;
+                        }
                     }
                 }
+
+                found = false;
             }
 
-            Console.WriteLine(count);
+            long kgv = counts.Aggregate(1L, (acc, n) => acc = acc * n / GGT(acc, n));
+
+            Console.WriteLine(kgv);
         }
 
-        [GeneratedRegex(@"^([A-Z]{3}) = \(([A-Z]{3}), ([A-Z]{3})\)$")]
+        private static long GGT(long a, long b)
+        {
+            while (b != 0)
+            {
+                long h = b;
+                b = a % b;
+                a = h;
+            }
+            return a;
+        }
+
+        [GeneratedRegex(@"^([A-Z1-2]{3}) = \(([A-Z1-2]{3}), ([A-Z1-2]{3})\)$")]
         private static partial Regex Node();
     }
 }
