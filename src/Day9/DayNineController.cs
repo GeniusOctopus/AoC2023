@@ -28,15 +28,27 @@
                 extrapolation.Add(differences);
             }
 
-            foreach (var list in extrapolation)
+            // Part1
+            //foreach (var list in extrapolation)
+            //{
+            //    for (int i = list.Count - 1; i > 0; i--)
+            //    {
+            //        list[i - 1].Add(list[i - 1].Last() + list[i].Last());
+            //    }
+            //}
+
+            //var sum = extrapolation.Sum(x => x.First().Last());
+
+            // Part2
+            for (int i = 0; i < extrapolation.Count; i++)
             {
-                for (int i = list.Count - 1; i > 0; i--)
+                for (int j = extrapolation[i].Count - 1; j > 0; j--)
                 {
-                    list[i - 1].Add(list[i - 1].Last() + list[i].Last());
+                    extrapolation[i][j - 1] = extrapolation[i][j - 1].Prepend(extrapolation[i][j - 1].First() - extrapolation[i][j].First()).ToList();
                 }
             }
 
-            var sum = extrapolation.Sum(x => x.First().Last());
+            var sum = extrapolation.Sum(x => x.First().First());
 
             Console.WriteLine(sum);
         }
