@@ -75,10 +75,10 @@
                         map[currentPipe.Y, currentPipe.X] = '└';
                         break;
                     case PipeTile.BendSE:
-                        map[currentPipe.Y, currentPipe.X] = '┌';
+                        map[currentPipe.Y, currentPipe.X] = '│';
                         break;
                     case PipeTile.BendSW:
-                        map[currentPipe.Y, currentPipe.X] = '┐';
+                        map[currentPipe.Y, currentPipe.X] = '│';
                         break;
                     case PipeTile.BendNW:
                         map[currentPipe.Y, currentPipe.X] = '┘';
@@ -88,7 +88,25 @@
                 count++;
             }
 
-            Console.WriteLine(count / 2);
+            var hideoutCount = 0;
+            var vertCount = 0;
+            for (int y = 0; y < map.GetLength(0); y++)
+            {
+                for (int i = 0; i < map.GetLength(1); i++)
+                {
+                    if (map[y, i] == '°' && vertCount % 2 == 1)
+                    {
+                        map[y, i] = 'X';
+                        hideoutCount++;
+                    }
+
+                    if (map[y, i] == '│')
+                        vertCount++;
+                }
+
+                vertCount = 0;
+            }
+
             for (int i = 0; i < map.GetLength(0); i++)
             {
                 for (int j = 0; j < map.GetLength(1); j++)
@@ -97,6 +115,11 @@
                 }
                 Console.WriteLine();
             }
+
+            // Part 1
+            Console.WriteLine(count / 2);
+            // Part 2
+            Console.WriteLine(hideoutCount);
         }
 
         static Pipe GetPipeInDirection(Direction direction, PipeTile? current, int x, int y)
