@@ -1,34 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace AoC2023.Day11
+﻿namespace AoC2023.Day11
 {
     internal class DayElevenController
     {
         public static void Run()
         {
             List<string> input = File.ReadAllLines("Day11/input.txt").ToList();
-
-            // Zeilenexpansion
-            for (int y = input.Count - 1; y >= 0; y--)
-            {
-                if (input[y].All(c => c == '.'))
-                {
-                    input.Insert(y, new string('.', input[y].Length));
-                }
-            }
-
-            // Spaltenexpansion
-            for (int x = input[0].Length - 1; x >= 0; x--)
-            {
-                if (input.All(c => c[x] == '.'))
-                {
-                    for (int i = 0; i < input.Count; i++)
-                    {
-                        input[i] = input[i].Insert(x, ".");
-                    }
-                }
-            }
 
             // Get Galaxies coordinates and assign index
             var galaxies = new List<Galaxy>();
@@ -45,6 +21,54 @@ namespace AoC2023.Day11
                 }
             }
 
+            // Part2
+            // Expansion is just a correction of galaxies coordinates
+            long expansionParameter = 1000000;
+            long yCoord = 0;
+            long yExpansiontimes = 0;
+            for (int y = 0; y < input.Count; y++)
+            {
+                if (input[y].All(c => c == '.'))
+                {
+                    for (int i = 0; i < galaxies.Count; i++)
+                    {
+                        if (galaxies[i].Y > yCoord)
+                        {
+                            galaxies[i] = new Galaxy(galaxies[i].X, galaxies[i].Y + expansionParameter - 1, galaxies[i].Index);
+                        }
+                    }
+                    yCoord += expansionParameter - 1 + yExpansiontimes;
+                    yExpansiontimes++;
+                }
+                else
+                {
+                    yCoord++;
+                }
+            }
+
+            long xCoord = 0;
+            long xExpansiontimes = 0;
+            for (int x = 0; x < input[0].Length; x++)
+            {
+                if (input.All(c => c[x] == '.'))
+                {
+                    for (int i = 0; i < galaxies.Count; i++)
+                    {
+                        if (galaxies[i].X > xCoord)
+                        {
+                            galaxies[i] = new Galaxy(galaxies[i].X + expansionParameter - 1, galaxies[i].Y, galaxies[i].Index);
+                        }
+                    }
+
+                    xCoord += expansionParameter - 1 + xExpansiontimes;
+                    xExpansiontimes++;
+                }
+                else
+                {
+                    xCoord++;
+                }
+            }
+
             // Build Galaxy Pairs
             var galaxyPairs = new List<(Galaxy g1, Galaxy g2, int distance)>();
             for (int i = 0; i < galaxies.Count; i++)
@@ -54,31 +78,13 @@ namespace AoC2023.Day11
                     galaxyPairs.Add((galaxies[i], galaxies[j], -1));
                 }
             }
-
-            // Calculate Path between galaxies
-            var sum = 0;
+            
+            // Calculate distance between galaxies
+            long sum = 0;
             for (int i = 0; i < galaxyPairs.Count; i++)
             {
-                var deltaX = 0;
-                var deltaY = 0;
-
-                if (galaxyPairs[i].g1.X > galaxyPairs[i].g2.X)
-                {
-                    deltaX = galaxyPairs[i].g1.X - galaxyPairs[i].g2.X;
-                }
-                else
-                {
-                    deltaX = galaxyPairs[i].g2.X - galaxyPairs[i].g1.X;
-                }
-
-                if (galaxyPairs[i].g1.Y > galaxyPairs[i].g2.Y)
-                {
-                    deltaY = galaxyPairs[i].g1.Y - galaxyPairs[i].g2.Y;
-                }
-                else
-                {
-                    deltaY = galaxyPairs[i].g2.Y - galaxyPairs[i].g1.Y;
-                }
+                long deltaX = Math.Abs(galaxyPairs[i].g1.X - galaxyPairs[i].g2.X);
+                long deltaY = Math.Abs(galaxyPairs[i].g1.Y - galaxyPairs[i].g2.Y);
 
                 sum += deltaX + deltaY;
             }
@@ -87,10 +93,10 @@ namespace AoC2023.Day11
         }
     }
 
-    struct Galaxy(int x, int y, int index)
+    struct Galaxy(long x, long y, int index)
     {
-        public int X { get; set; } = x;
-        public int Y { get; set; } = y;
+        public long X { get; set; } = x;
+        public long Y { get; set; } = y;
         public int Index { get; set; } = index;
     }
 }
