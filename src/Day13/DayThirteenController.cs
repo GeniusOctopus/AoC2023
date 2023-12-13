@@ -64,6 +64,15 @@
                         }
                     }
 
+                    if (upTiles.Zip(downTiles, (up, down) => up != down).Count(difference => difference) == 1)
+                    {
+                        isReflection = true;
+                    }
+                    else
+                    {
+                        isReflection = false;
+                    }
+
                     if (isReflection)
                     {
                         sum += y * 100;
@@ -106,6 +115,15 @@
                         {
                             isReflection = false; break;
                         }
+                    }
+
+                    if (leftTiles.Zip(rightTiles, (left, right) => left != right).Count(difference => difference) == 1)
+                    {
+                        isReflection = true;
+                    }
+                    else
+                    {
+                        isReflection = false;
                     }
 
                     if (isReflection)
